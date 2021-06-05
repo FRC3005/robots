@@ -4,7 +4,8 @@
 
 package com.swervetest.template.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
+import com.swervetest.template.robot.subsystems.ExampleSubsystem;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 /** An example command that uses an example subsystem. */

@@ -25,7 +25,8 @@ public class SwerveModule implements Sendable {
   public SwerveModule(
       ServoMotor driveMotor,
       ServoMotor turningMotor) {
-
+    m_driveMotor = driveMotor;
+    m_turningMotor = turningMotor;
   }
 
   /**
@@ -39,8 +40,6 @@ public class SwerveModule implements Sendable {
 
   public void addParent(Sendable parent, String name) {
     SendableRegistry.addLW(this, SendableRegistry.getSubsystem(parent), name);
-    SendableRegistry.addLW(m_turningPIDController, SendableRegistry.getSubsystem(parent), name + "/turningPID");
-    SendableRegistry.addLW(m_drivePIDController, SendableRegistry.getSubsystem(parent), name +  "/drivePID");
   }
 
   /**
@@ -51,46 +50,16 @@ public class SwerveModule implements Sendable {
   public void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the reference state to avoid spinning further than 90 degrees
     SwerveModuleState state =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
+        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningMotor.getPosition()));
 
     // Calculate the turning motor output from the turning PID controller.
     m_driveMotor.setVelocity(state.speedMetersPerSecond);
     m_turningMotor.setPosition(state.angle.getRadians());
   }
 
-  /** Zeros all the SwerveModule encoders. */
-  public void resetEncoders() {
-    m_driveEncoder.setPosition( 0 );
-    m_turningEncoder.setPosition( getAbsoluteAngle() );
-  }
-
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("SwerveModule");
-
-    builder.addStringProperty(
-      ".driveMotor",
-      () -> String.valueOf(m_driveMotor.getDeviceId()),
-      null);
-    builder.addStringProperty(
-      ".turningMotor",
-      () -> String.valueOf(m_turningMotor.getDeviceId()),
-      null);
-
-    builder.addDoubleProperty(
-      ".turningAngleDegress",
-      () -> m_turningEncoder.getPosition() * 180 / Math.PI,
-      null);
-
-    builder.addDoubleProperty(
-      ".turingAngleAbsolute",
-      () -> getAbsoluteAngle(),
-      null);
-
-    builder.addDoubleProperty(
-      ".turingAngleAbsoluteRaw",
-      () -> (1.0 - m_turningAbsolute.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI,
-      null);
   }
 }
 

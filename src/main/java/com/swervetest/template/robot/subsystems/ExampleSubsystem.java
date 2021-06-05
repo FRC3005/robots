@@ -4,8 +4,9 @@
 
 package com.swervetest.template.robot.subsystems;
 
+import com.lib.electromechanical.Gearbox;
 import com.lib.electromechanical.ServoMotor;
-import com.lib.vendor.SparkMax;
+import com.lib.vendor.motorcontroller.SparkMax;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -14,15 +15,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ExampleSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public ExampleSubsystem() {
+    /*
     SparkMax sparkMax1 = new SparkMax(
       new CANSparkMax(1, MotorType.kBrushless),
       (CANSparkMax device) -> {
         device.restoreFactoryDefaults();
         return false;
     });
-    ServoMotor motor = new ServoMotor(sparkMax1, sparkMax1.velocityController(), sparkMax1.positionController(), sparkMax1.encoder());
 
-
+    ServoMotor motor = new ServoMotor(sparkMax1,
+      sparkMax1.velocityController(),
+      sparkMax1.positionController(),
+      sparkMax1.encoder(),
+      new Gearbox(10,1).withEfficiency(0.75));
+    */
   }
 
   @Override

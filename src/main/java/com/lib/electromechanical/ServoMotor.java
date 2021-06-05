@@ -1,14 +1,14 @@
 package com.lib.electromechanical;
 
 public class ServoMotor {
-    private final Motor m_motor;
+    private final MotorController m_motor;
     private final Controller m_VelController;
     private final Controller m_PosController;
     private final Encoder m_encoder;
     private final Gearbox m_gearbox;
     
     public ServoMotor(
-        Motor motor,
+        MotorController motorContorller,
         Controller VelocityController,
         Controller PositionController,
         Encoder encoder,
@@ -16,7 +16,7 @@ public class ServoMotor {
             m_PosController = PositionController;
             m_VelController = VelocityController;
             m_encoder = encoder;
-            m_motor = motor;
+            m_motor = motorContorller;
             m_gearbox = gearbox;
     }
 
@@ -33,6 +33,6 @@ public class ServoMotor {
     }
 
     public void setPosition(double position) {
-        m_PosController.setReference(positon);
+        m_PosController.setReference(position);
     }
 }
