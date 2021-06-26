@@ -61,5 +61,10 @@ public class SwerveModule implements Sendable {
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("SwerveModule");
   }
+
+  public void resetEncoders() {
+    m_driveMotor.resetEncoder();
+    m_turningMotor.resetEncoder();
+  }
 }
 

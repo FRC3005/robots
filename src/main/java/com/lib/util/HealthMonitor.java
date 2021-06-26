@@ -3,7 +3,9 @@ package com.lib.util;
 import java.util.HashSet;
 import java.util.function.BooleanSupplier;
 
-public class HealthMonitor {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class HealthMonitor extends SubsystemBase {
     private static HealthMonitor m_instance = new HealthMonitor();
 
     private HealthMonitor() { }
@@ -37,7 +39,8 @@ public class HealthMonitor {
         return el;
     }
     
-    public void run() {
+    @Override
+    public void periodic() {
         for (MonitoredElement el : m_elements) {
             if (el.m_monitor.getAsBoolean()) {
                 // TODO: Log error occured
