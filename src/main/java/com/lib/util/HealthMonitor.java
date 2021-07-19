@@ -31,7 +31,7 @@ public class HealthMonitor extends SubsystemBase {
         }
     }
 
-    private HashSet<MonitoredElement> m_elements;
+    private HashSet<MonitoredElement> m_elements = new HashSet<MonitoredElement>();
     
     public static MonitoredElement monitor(BooleanSupplier monitorFunction, BooleanSupplier reinitFunction) {
         MonitoredElement el = m_instance.new MonitoredElement(monitorFunction, reinitFunction);
