@@ -5,6 +5,8 @@
 package com.lib.swerve;
 
 import com.lib.electromechanical.ServoMotor;
+import com.lib.util.SendableHelper;
+
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Sendable;
@@ -38,10 +40,6 @@ public class SwerveModule implements Sendable {
     return new SwerveModuleState(m_driveMotor.getVelocity(), new Rotation2d(m_turningMotor.getPosition()));
   }
 
-  public void addParent(Sendable parent, String name) {
-    SendableRegistry.addLW(this, SendableRegistry.getSubsystem(parent), name);
-  }
-
   /**
    * Sets the desired state for the module.
    *
@@ -60,6 +58,8 @@ public class SwerveModule implements Sendable {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("SwerveModule");
+    SendableHelper.addChild(builder, this, m_driveMotor, "DriveMotor");
+    SendableHelper.addChild(builder, this, m_turningMotor, "TurningMotor");
   }
 
   public void resetEncoders() {

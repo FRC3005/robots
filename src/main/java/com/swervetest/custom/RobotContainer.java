@@ -4,12 +4,15 @@
 
 package com.swervetest.custom;
 
+import com.swervetest.custom.subsystems.DriveSubsystem;
 import com.swervetest.template.robot.commands.ExampleCommand;
 import com.swervetest.template.robot.subsystems.ExampleSubsystem;
+import com.swervetest.custom.Constants.OIConstants;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -18,15 +21,34 @@ import edu.wpi.first.wpilibj2.command.Command;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    // The robot's subsystems
+  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
+  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    // Configure default commands
+    // Set the default drive command to split-stick arcade drive
+    m_robotDrive.setDefaultCommand(
+        // A split-stick arcade command, with forward/backward controlled by the left
+        // hand, and turning controlled by the right.
+        new RunCommand(
+            () ->
+                m_robotDrive.drive(
+                    m_driverController.getY(GenericHID.Hand.kLeft),
+                    m_driverController.getX(GenericHID.Hand.kRight),
+                    m_driverController.getX(GenericHID.Hand.kLeft),
+                    false), m_robotDrive));
   }
 
   /**

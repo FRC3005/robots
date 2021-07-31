@@ -1,6 +1,8 @@
 package com.lib.controller;
 
-public interface Controller {
+import edu.wpi.first.wpilibj.Sendable;
+
+public interface Controller extends Sendable {
 
     /**
      * Set the controller target reference

@@ -85,11 +85,15 @@ public class SwerveDrive extends SubsystemBase {
   private final ChassisSpeedsSendable m_chassisSpeedSendable = new ChassisSpeedsSendable();
 
   private void initTelemetry() {
+    /*
     m_frontLeft.addParent(this, "frontLeft");
     m_frontRight.addParent(this, "frontRight");
     m_rearLeft.addParent(this, "rearLeft");
     m_rearRight.addParent(this, "rearRight");
-    this.addChild("chassisSpeeds", m_chassisSpeedSendable);
+    */
+    //SendableRegistry.addLW(m_rearRight, getSubsystem(), "rearRight");
+    addChild("rearRight", m_rearRight);
+    addChild("chassisSpeeds", m_chassisSpeedSendable);
   }
 
   @Override

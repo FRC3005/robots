@@ -54,4 +54,12 @@ public final class Constants {
             new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
             new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
     }
+
+    public static final class OIConstants {
+        public static final int kDriverControllerPort = 1;
+        public static final double kRightXDeadband = 0.1;
+        public static final double kRightYDeadband = 0.1;
+        public static final double kLeftXDeadband = 0.1;
+        public static final double kLeftYDeadband = 0.1;
+    }
 }
