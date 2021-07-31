@@ -13,6 +13,11 @@ public class ControllerSupplier implements Controller {
         m_setReference = setReference;
     }
 
+    public ControllerSupplier(BiConsumer<Double, Double> setReference, Consumer<SendableBuilder> init) {
+        m_setReference = setReference;
+        m_initSendable = init;
+    }
+
     @Override
     public void setReference(double reference, double feedforward) {
         m_setReference.accept(reference, feedforward);
@@ -20,16 +25,8 @@ public class ControllerSupplier implements Controller {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.setSmartDashboardType("ControllerSup");
         if (m_initSendable != null) {
             m_initSendable.accept(builder);
         }
-
-        builder.addStringProperty(".name",
-            () -> this.getClass().getName(),
-            null);
-
-        builder.addStringProperty("test123", () -> "this is a test string", null);
     }
-    
 }

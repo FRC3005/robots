@@ -53,6 +53,25 @@ public final class Constants {
             new Translation2d(kWheelBase / 2, -kTrackWidth / 2),
             new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
             new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
+
+        // Number of rotations of the motor / number of rotations of the output 
+        public static final double kDriveMotorReduction = 8.31 / 1.0;
+        public static final double kWheelDiameterMeters = 0.1016;
+        public static final double kDriveEncoderPositionFactor =
+            // Assumes the encoders are directly mounted on the wheel shafts
+            (kWheelDiameterMeters * Math.PI) / (double) kDriveMotorReduction;
+
+        public static final double kDriveEncoderVelocityFactor =
+            // Assumes the encoders are directly mounted on the wheel shafts
+            ((kWheelDiameterMeters * Math.PI) / (double) kDriveMotorReduction) / 60.0;
+        public static final boolean kDriveEncoderReversed = false;
+        
+        public static final double kTurningModuleGearRatio = 18.0 / 1.0;
+        public static final double kTurningEncoderPositionFactor = 
+            (2 * Math.PI) / kTurningModuleGearRatio;
+        public static final double kTurningEncoderVelocityFactor =
+            ((2 * Math.PI) / kTurningModuleGearRatio) / 60.0;
+		public static final boolean kTurningEncoderReversed = false;
     }
 
     public static final class OIConstants {

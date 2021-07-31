@@ -8,6 +8,7 @@ import com.lib.controller.Controller;
 import com.lib.swerve.SwerveDrive;
 import com.lib.swerve.SwerveModule;
 import com.lib.vendor.motorcontroller.SparkMax;
+import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -22,6 +23,18 @@ public class DriveSubsystem extends SwerveDrive {
 
     private static final Function<CANSparkMax, Boolean> DriveMotorInitializer = (CANSparkMax sparkMax) -> {
         sparkMax.restoreFactoryDefaults();
+        CANEncoder enc = sparkMax.getEncoder();
+    
+        // Convert 'rotations' to 'meters'
+        enc.setPositionConversionFactor(Constants.Drivetrain.kDriveEncoderPositionFactor);
+    
+        // Convert 'RPM' to 'meters per second'
+        enc.setVelocityConversionFactor(Constants.Drivetrain.kDriveEncoderVelocityFactor);
+    
+        // Set inversion
+        sparkMax.setInverted(Constants.Drivetrain.kDriveEncoderReversed);
+    
+        sparkMax.getPIDController().setOutputRange(-1, 1);
         sparkMax.setIdleMode(IdleMode.kCoast);
         sparkMax.setSmartCurrentLimit(Constants.Drivetrain.kDriveMotorCurrentLimit);
         sparkMax.burnFlash();
@@ -30,6 +43,18 @@ public class DriveSubsystem extends SwerveDrive {
 
     private static final Function<CANSparkMax, Boolean> TurningMotorInitializer = (CANSparkMax sparkMax) -> {
         sparkMax.restoreFactoryDefaults();
+        CANEncoder enc = sparkMax.getEncoder();
+    
+        // Convert 'rotations' to 'meters'
+        enc.setPositionConversionFactor(Constants.Drivetrain.kTurningEncoderPositionFactor);
+    
+        // Convert 'RPM' to 'meters per second'
+        enc.setVelocityConversionFactor(Constants.Drivetrain.kTurningEncoderVelocityFactor);
+    
+        // Set inversion
+        sparkMax.setInverted(Constants.Drivetrain.kTurningEncoderReversed);
+    
+        sparkMax.getPIDController().setOutputRange(-1, 1);
         sparkMax.setIdleMode(IdleMode.kCoast);
         sparkMax.setSmartCurrentLimit(Constants.Drivetrain.kTurningMotorCurrentLimit);
         sparkMax.burnFlash();

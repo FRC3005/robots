@@ -1,6 +1,7 @@
 package com.lib.electromechanical;
 
 import com.lib.controller.Controller;
+import com.lib.util.SendableHelper;
 
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
@@ -13,12 +14,12 @@ public class ServoMotor implements Sendable {
     private final Encoder m_encoder;
     private final Gearbox m_gearbox;
 
-    public ServoMotor(MotorController motorContorller, Controller VelocityController, Controller PositionController,
+    public ServoMotor(MotorController motorController, Controller VelocityController, Controller PositionController,
             Encoder encoder, Gearbox gearbox) {
         m_PosController = PositionController;
         m_VelController = VelocityController;
         m_encoder = encoder;
-        m_motor = motorContorller;
+        m_motor = motorController;
         m_gearbox = gearbox;
     }
 
@@ -81,6 +82,7 @@ public class ServoMotor implements Sendable {
     }
 
     /**
+     * Set this servo motor to 'roll over' between min and max
      * 
      * @param min
      * @param max
@@ -89,17 +91,28 @@ public class ServoMotor implements Sendable {
     }
 
     public void resetEncoder() {
+        m_encoder.setPosition(0.0);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        SendableRegistry.addLW(m_VelController, "/controller/velController");
+        if (m_VelController != null) {
+            SendableHelper.addChild(builder, this, m_VelController, "velController");
+        }
+        
+        if (m_PosController != null) {
+            SendableHelper.addChild(builder, this, m_PosController, "posController");
+        }
+
+        // This tells the dashboard to be careful here!
+        // Realistically need to be set enable to set gains and run things
+        builder.setActuator(true);
 
         builder.addDoubleProperty(".velocity",
-            () -> m_encoder.getVelocity(),
+            m_encoder::getVelocity,
             null);
         builder.addDoubleProperty(".position",
-            () -> m_encoder.getPosition(),
+            m_encoder::getPosition,
             null);
     }
 }

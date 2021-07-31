@@ -18,7 +18,7 @@ public class SendableHelper {
     String subsystem = SendableRegistry.getSubsystem(parent);
     String parentName = SendableRegistry.getName(parent);
     SendableRegistry.addLW(child, subsystem, parentName + "/" + name);
-    child.initSendable(builder);
+    //child.initSendable(builder);
   }
     
 }
