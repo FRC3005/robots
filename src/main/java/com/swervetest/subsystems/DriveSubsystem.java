@@ -1,4 +1,4 @@
-package com.swervetest.custom.subsystems;
+package com.swervetest.subsystems;
 
 import java.util.function.Function;
 
@@ -12,7 +12,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.swervetest.custom.Constants;
+import com.swervetest.Constants;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Gyro;

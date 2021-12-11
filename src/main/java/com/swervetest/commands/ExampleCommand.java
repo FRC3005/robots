@@ -2,9 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.swervetest.custom.commands;
+package com.swervetest.commands;
 
-import com.swervetest.template.robot.subsystems.ExampleSubsystem;
+import com.swervetest.subsystems.ExampleSubsystem;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 

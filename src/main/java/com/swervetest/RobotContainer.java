@@ -2,12 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.swervetest.custom;
+package com.swervetest;
 
-import com.swervetest.custom.subsystems.DriveSubsystem;
-import com.swervetest.template.robot.commands.ExampleCommand;
-import com.swervetest.template.robot.subsystems.ExampleSubsystem;
-import com.swervetest.custom.Constants.OIConstants;
+import com.swervetest.subsystems.DriveSubsystem;
+import com.swervetest.commands.ExampleCommand;
+import com.swervetest.subsystems.ExampleSubsystem;
+import com.swervetest.Constants.OIConstants;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
