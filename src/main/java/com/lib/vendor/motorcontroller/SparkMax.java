@@ -14,7 +14,7 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.FaultID;
-import java.util.LinkedList;
+import com.lib.util.AccessOrderHashSet;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
@@ -24,7 +24,7 @@ public class SparkMax implements MotorController {
     private CANSparkMax m_sparkMax;
     private CANEncoder m_sparkMaxEncoder;
     private CANPIDController m_sparkMaxController;
-    private LinkedList<Function<CANSparkMax, Boolean>> m_mutators;
+    private AccessOrderHashSet<Function<CANSparkMax, Boolean>> m_mutators;
     /**
      * Monitor the Spark Max to check for reset. This is used by the health monitor
      * to automatically re-initialize the spark max in case of reboot.
@@ -49,7 +49,7 @@ public class SparkMax implements MotorController {
      * 
      */
     public SparkMax(CANSparkMax sparkMax, Function<CANSparkMax, Boolean> initFunction) {
-        m_mutators = new LinkedList<Function<CANSparkMax, Boolean>>();
+        m_mutators = new AccessOrderHashSet<>();
         m_mutators.add(initFunction);
         m_sparkMax = sparkMax;
         m_sparkMaxEncoder = sparkMax.getEncoder();
@@ -126,7 +126,7 @@ public class SparkMax implements MotorController {
         m_gainsCached[VELOCITY_GAIN_SLOT] = gains;
 
         // Add this to mutate list so it is reset if controller resets
-        mutate((sm) -> {
+        mutate(sm -> {
             m_sparkMaxController.setP(gains.P, VELOCITY_GAIN_SLOT);
             m_sparkMaxController.setI(gains.I, VELOCITY_GAIN_SLOT);
             m_sparkMaxController.setD(gains.D, VELOCITY_GAIN_SLOT);
@@ -134,10 +134,9 @@ public class SparkMax implements MotorController {
         });
 
         return new ControllerSupplier(
-            (ref, ff) -> {
-                m_sparkMaxController.setReference(ref, ControlType.kVelocity, VELOCITY_GAIN_SLOT, ff);
-            },
-            (builder) -> controllerInitSendable(builder, VELOCITY_GAIN_SLOT)
+            (ref, ff) ->
+                m_sparkMaxController.setReference(ref, ControlType.kVelocity, VELOCITY_GAIN_SLOT, ff),
+            builder -> controllerInitSendable(builder, VELOCITY_GAIN_SLOT)
         );
 	}
 
@@ -150,7 +149,7 @@ public class SparkMax implements MotorController {
         return new EncoderSupplier(
             () -> m_sparkMaxEncoder.getVelocity(),
             () -> m_sparkMaxEncoder.getPosition(),
-            (pos) -> m_sparkMaxEncoder.setPosition(pos)
+            pos -> m_sparkMaxEncoder.setPosition(pos)
         );
 	}
 
@@ -176,19 +175,21 @@ public class SparkMax implements MotorController {
         });
         
         return new ControllerSupplier(
-            (ref, ff) -> {
-                m_sparkMaxController.setReference(ref, ControlType.kSmartMotion, SMART_MOTION_GAIN_SLOT, ff);
-            },
-            (builder) -> {
-                controllerInitSendable(builder, SMART_MOTION_GAIN_SLOT);
-            }
+            (ref, ff) -> 
+                m_sparkMaxController.setReference(ref, ControlType.kSmartMotion, SMART_MOTION_GAIN_SLOT, ff),
+            builder -> 
+                controllerInitSendable(builder, SMART_MOTION_GAIN_SLOT)
         );
     }
 
     /**
      * Modify CANSparkMax object. Mutations using this
      * method are re-run in order in the case of a device
-     * failure that is later recoverd.
+     * failure that is later recovered. The same function can
+     * be called multiple times, and will simply be moved to
+     * the end of the list each call.
+     * 
+     * Only adds the function to the list if it succeeds
      * 
      * @param fcn a function on the underlying CANSparkMax object
      * returning true on success. Typically used to change parameter
@@ -197,7 +198,22 @@ public class SparkMax implements MotorController {
      * @return result of mutate function
      */
     public boolean mutate(Function<CANSparkMax, Boolean> fcn) {
-        m_mutators.add(fcn);
-        return fcn.apply(m_sparkMax);
+        Boolean result = fcn.apply(m_sparkMax);
+        if (result != null && result) {
+            m_mutators.add(fcn);
+        }
+        return result;
+    }
+
+    /**
+     * Get the raw CANSparkMax object, only use if you need to
+     * access functions from the CANSparkMax API. If you want to
+     * modify the object and have the new state persist through
+     * power loss or error, call mutate()
+     * 
+     * @return CANSparkMax object
+     */
+    public CANSparkMax getCANSparkMax() {
+        return m_sparkMax;
     }
 }
