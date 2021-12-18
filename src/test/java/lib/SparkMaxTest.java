@@ -45,10 +45,17 @@ public class SparkMaxTest {
 
         int devId = sm.getCANSparkMax().getDeviceId();
         var tmp = sm.getCANSparkMax().getIdleMode();
-        double volt = sm.getCANSparkMax().getVoltageCompensationNominalVoltage();
 
         assertEquals(4, devId);
-        //assertEquals(IdleMode.kBrake, tmp);
-        //assertEquals(12.12, volt, 0.001);
+
+        assertEquals(IdleMode.kBrake, tmp);
+
+        sm.mutate(spark -> {
+            spark.setIdleMode(IdleMode.kCoast);
+            return true;
+        });
+
+        tmp = sm.getCANSparkMax().getIdleMode();
+        assertEquals(IdleMode.kCoast, tmp);
     }
 }

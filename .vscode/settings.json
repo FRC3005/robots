@@ -26,6 +26,7 @@
     "**/*~": true
   },
   "cSpell.words": [
+    "Odometry",
     "feedforward",
     "sparkmax"
   ]
