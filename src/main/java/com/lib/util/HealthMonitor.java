@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class HealthMonitor extends SubsystemBase {
     private static HealthMonitor m_instance = new HealthMonitor();
 
+    private static boolean m_enabled = false;
+
     private HealthMonitor() { }
 
     class MonitoredElement {
@@ -38,9 +40,17 @@ public class HealthMonitor extends SubsystemBase {
         m_instance.m_elements.add(el);
         return el;
     }
-    
+
+    public static void setEnable(boolean enable) {
+        m_enabled = enable;
+    }
+
     @Override
     public void periodic() {
+        if (!m_enabled) {
+            return;
+        }
+
         for (MonitoredElement el : m_elements) {
             if (el.m_monitor.getAsBoolean()) {
                 // TODO: Log error occured

@@ -4,20 +4,11 @@
 
 package com.swervetest;
 
-/*
-import java.util.Random;
-
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import edu.wpi.first.networktables.NetworkTable;
-*/
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import org.tinylog.Logger;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -29,7 +20,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  //MqttClient sampleClient;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -41,32 +31,10 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    /*
-    String topic        = "MQTT Examples";
-    String broker       = "tcp://mqtt.eclipse.org:1883";
-    String clientId     = "JavaSample";
-    MemoryPersistence persistence = new MemoryPersistence();
+    LogConfig.config(isSimulation());
 
-    try {
-        MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
-        MqttConnectOptions connOpts = new MqttConnectOptions();
-        connOpts.setCleanSession(true);
-        System.out.println("Connecting to broker: "+broker);
-        sampleClient.connect(connOpts);
-        System.out.println("Connected");
-        System.out.println("Message published");
-        sampleClient.disconnect();
-        System.out.println("Disconnected");
-        System.exit(0);
-    } catch(MqttException me) {
-        System.out.println("reason "+me.getReasonCode());
-        System.out.println("msg "+me.getMessage());
-        System.out.println("loc "+me.getLocalizedMessage());
-        System.out.println("cause "+me.getCause());
-        System.out.println("excep "+me);
-        me.printStackTrace();
-    }
-    */
+    Logger.info("Robot code starting!");
+
   }
 
   /**
@@ -84,18 +52,6 @@ public class Robot extends TimedRobot {
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    /*
-    for (int i = 0; i < 100; i++) {
-      MqttMessage message = new MqttMessage(Math.random() * 100);
-      NetworkTuuable
-      message.setQos(qos);
-      sampleClient.publish(topic, message);
-      String value = jedis.get("test" + i);
-      if (i == 0) {
-        System.out.print(value);
-      }
-    }
-    */
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

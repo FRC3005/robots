@@ -24,7 +24,7 @@ public class SparkMax implements MotorController {
     private CANSparkMax m_sparkMax;
     private CANEncoder m_sparkMaxEncoder;
     private CANPIDController m_sparkMaxController;
-    private AccessOrderHashSet<Function<CANSparkMax, Boolean>> m_mutators;
+    private AccessOrderHashSet<Function<CANSparkMax, Boolean>> m_mutatorChain;
     /**
      * Monitor the Spark Max to check for reset. This is used by the health monitor
      * to automatically re-initialize the spark max in case of reboot.
@@ -49,8 +49,8 @@ public class SparkMax implements MotorController {
      * 
      */
     public SparkMax(CANSparkMax sparkMax, Function<CANSparkMax, Boolean> initFunction) {
-        m_mutators = new AccessOrderHashSet<>();
-        m_mutators.add(initFunction);
+        m_mutatorChain = new AccessOrderHashSet<>();
+        m_mutatorChain.add(initFunction);
         m_sparkMax = sparkMax;
         m_sparkMaxEncoder = sparkMax.getEncoder();
         m_sparkMaxController = sparkMax.getPIDController();
@@ -200,7 +200,7 @@ public class SparkMax implements MotorController {
     public boolean mutate(Function<CANSparkMax, Boolean> fcn) {
         Boolean result = fcn.apply(m_sparkMax);
         if (result != null && result) {
-            m_mutators.add(fcn);
+            m_mutatorChain.add(fcn);
         }
         return result;
     }
