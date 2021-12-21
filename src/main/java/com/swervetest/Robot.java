@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 
     LogConfig.config(isSimulation());
 
-    Logger.info("Robot code starting!");
+    Logger.tag("RobotMain").info("Robot code starting!");
 
   }
 

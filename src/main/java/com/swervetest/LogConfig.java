@@ -7,7 +7,7 @@ import org.tinylog.configuration.Configuration;
 public class LogConfig {
     // Don't show class or function names as this has an impact on performance
     // see https://tinylog.org/v2/benchmark/
-    private static final String kFormat = "{date:yyyy-MM-dd HH:mm:ss} - {tag: No Tag} - {level}: {message}";
+    private static final String kFormat = "[UserLog] {date:yyyy-MM-dd HH:mm:ss} - {tag: No Tag} - {level}: {message}";
 
     public static void config(boolean isSim) {
         String logPath = null;
