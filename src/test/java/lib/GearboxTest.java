@@ -2,8 +2,8 @@ package lib;
 
 import static org.junit.Assert.*;
 
-import com.lib.electromechanical.Gearbox;
-import com.lib.electromechanical.GearboxBuilder;
+import frc.lib.electromechanical.Gearbox;
+import frc.lib.electromechanical.GearboxBuilder;
 
 import org.junit.*;
 

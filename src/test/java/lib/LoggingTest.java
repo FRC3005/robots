@@ -2,7 +2,7 @@ package lib;
 
 import static org.junit.Assert.*;
 
-import com.swervetest.LogConfig;
+import frc.swervetest.LogConfig;
 import edu.wpi.first.hal.*;
 
 import org.junit.*;

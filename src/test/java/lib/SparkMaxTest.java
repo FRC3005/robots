@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.function.Function;
 
-import com.lib.vendor.motorcontroller.SparkMax;
+import frc.lib.vendor.motorcontroller.SparkMax;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
