@@ -7,6 +7,7 @@ package frc.swervetest;
 import frc.swervetest.subsystems.DriveSubsystem;
 import frc.swervetest.commands.ExampleCommand;
 import frc.swervetest.subsystems.ExampleSubsystem;
+import frc.swervetest.subsystems.SimSparkMax;
 import frc.swervetest.Constants.OIConstants;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -26,6 +27,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final SimSparkMax m_simSparkMax = new SimSparkMax();
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
@@ -36,6 +38,11 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    m_simSparkMax.setDefaultCommand(
+      new RunCommand(
+        () -> m_simSparkMax.setOutput(
+          m_driverController.getY(GenericHID.Hand.kLeft)), m_simSparkMax));
 
     // Configure default commands
     // Set the default drive command to split-stick arcade drive

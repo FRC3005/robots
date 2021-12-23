@@ -27,11 +27,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    // Must configure log before anything else
+    LogConfig.config(isSimulation());
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
-    LogConfig.config(isSimulation());
 
     Logger.tag("RobotMain").info("Robot code starting!");
 

@@ -13,9 +13,9 @@ public class LogConfig {
         String logPath = null;
 
         if (isSim) {
-            logPath = "log.{count}.txt";
+            logPath = "log.{count}.log";
         } else if (new File("/u").exists()) {
-            logPath = "/u/log.{count}.txt";
+            logPath = "/u/log.{count}.log";
         } else {
             System.out.println("No external drive detected, file logging will be skipped");
         }
