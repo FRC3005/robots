@@ -26,9 +26,9 @@ public class CANSparkMaxSim {
     private final SimDouble m_position;
     private final SimDouble m_busVoltage;
     private final SimDouble m_motorCurrent;
-    private final SimValue m_controlMode;
     private final CANSparkMax m_sparkMax;
     private final DCMotor m_dcMotor;
+    private ControlType m_controlMode = ControlType.kDutyCycle;
     private double m_setpoint = 0.0;
     private double m_arbFF = 0.0;
     private int m_pidSlot = 0;
@@ -69,7 +69,6 @@ public class CANSparkMaxSim {
         m_velocity = sparkMaxSim.getDouble("Velocity");
         m_busVoltage = sparkMaxSim.getDouble("Bus Voltage");
         m_motorCurrent = sparkMaxSim.getDouble("Motor Current");
-        m_controlMode = sparkMaxSim.getValue("Control Mode");
         m_sparkMax = sparkMax;
         m_dcMotor = motor;
 
@@ -113,6 +112,17 @@ public class CANSparkMaxSim {
      */
     public void setAppliedOutput(double appliedOutput) {
         m_appliedOutput.set(appliedOutput);
+    }
+
+    /**
+     * Set the control type, call this after setReference or set()
+     * 
+     * This is a workaround while SimValue doesn't work.
+     * 
+     * @param controlType
+     */
+    public void setControlType(ControlType controlType) {
+        m_controlMode = controlType;
     }
 
     /**
@@ -237,54 +247,64 @@ public class CANSparkMaxSim {
     public void iterate(double velocity, double vbus, double dt) {
         // First set the states that are given
         m_velocity.set(velocity);
+
+        // TODO: This doesn't work with the 2021 SPARK MAX API
         double positionFactor = CANSparkMaxJNI.c_SparkMax_GetPositionConversionFactor(m_sparkMax.m_sparkMax);
         double velocityFactor = CANSparkMaxJNI.c_SparkMax_GetVelocityConversionFactor(m_sparkMax.m_sparkMax);
+
+        // These come back as 0, maybe an API issue?
+        if (positionFactor == 0.0) {
+            positionFactor = 1.0;
+        }
+        if (velocityFactor == 0.0) {
+            velocityFactor = 1.0;
+        }
+
+        double velocityRPM = velocity / velocityFactor;
         m_position.set(
-            m_position.get() + (velocity * dt)
+            m_position.get() + (velocityRPM * dt) / positionFactor
         );
-        m_busVoltage.set(12345.0);
+        m_busVoltage.set(vbus);
 
         // Calcuate the applied output
         double appliedOutput = 0.0;
-        HALValue value = m_controlMode.getValue();
-        int controlMode = (int)value.getLong();
-        switch (controlMode) {
+        switch (m_controlMode) {
             // Duty Cycle
-            case 0:
+            case kDutyCycle:
             appliedOutput = m_setpoint;
             break;
 
             // Velocity
-            case 1:
+            case kVelocity:
             appliedOutput = runPID(m_setpoint, velocity, m_pidSlot, dt);
             break;
 
             // Voltage
-            case 2:
+            case kVoltage:
             appliedOutput = m_setpoint / vbus;
             break;
 
             // Position
-            case 3:
+            case kPosition:
             appliedOutput = runPID(m_setpoint, m_position.get(), m_pidSlot, dt);
             break;
             // Smart Motion
-            case 4:
+            case kSmartMotion:
             // TODO... This control mechansim is not documented
             break;
 
             // Current
-            case 5:
+            case kCurrent:
             appliedOutput = runPID(m_setpoint, m_motorCurrent.get(), m_pidSlot, dt);
             break;
 
             // Smart Velocity
-            case 6:
+            case kSmartVelocity:
             // TODO... This control mechansim is not documented
             break;
 
             default:
-            Logger.tag("CANSparkMaxSim").error("Invalid control mode: {}", controlMode);
+            Logger.tag("CANSparkMaxSim").error("Invalid control mode: {}", m_controlMode.value);
         }
 
         // ArbFF
@@ -310,8 +330,7 @@ public class CANSparkMaxSim {
         // And finally, set remaining states
         m_appliedOutput.set(appliedOutput);
         m_motorCurrent.set(m_dcMotor.getCurrent(
-            // TODO: Conversion factors
-            Units.rotationsPerMinuteToRadiansPerSecond(m_velocity.get()), 
+            velocityRPM, 
             appliedOutput * vbus
         ));
 

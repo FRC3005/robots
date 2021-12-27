@@ -30,17 +30,17 @@ public class SimSparkMax extends SubsystemBase {
     m_dynamics = new FlywheelSim(DCMotor.getNEO(1), 1, 0.001);
 
     m_pid = m_motor.getPIDController();
-    m_pid.setP(0.001);
+    m_pid.setP(0.0015);
+    m_pid.setOutputRange(-1.0, 1.0);
+    m_motor.getEncoder().setPositionConversionFactor(2.0);
+    m_motor.getEncoder().setVelocityConversionFactor(0.1);
   }
 
   public void setOutput(double value) {
     //m_motor.set(value * 5600);
     //m_simMotor.setSetpoint(value * 5600);
-    if (value > 0) {
-      m_pid.setReference(3000, ControlType.kPosition);
-    } else if (value < 0) {
-      m_pid.setReference(3000, ControlType.kVelocity);
-    }
+    m_pid.setReference(3000, ControlType.kVelocity);
+    m_simMotor.setControlType(ControlType.kVelocity);
     m_simMotor.setSetpoint(3000);
   }
 
