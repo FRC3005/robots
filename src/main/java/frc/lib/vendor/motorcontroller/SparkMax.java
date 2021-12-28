@@ -9,21 +9,20 @@ import frc.lib.electromechanical.Encoder;
 import frc.lib.electromechanical.EncoderSupplier;
 import frc.lib.electromechanical.MotorController;
 import frc.lib.util.HealthMonitor;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.FaultID;
 import frc.lib.util.AccessOrderHashSet;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
-import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.util.sendable.SendableBuilder;
+import frc.lib.util.Constraints;
 
 public class SparkMax implements MotorController {
 
     private CANSparkMax m_sparkMax;
-    private CANEncoder m_sparkMaxEncoder;
-    private CANPIDController m_sparkMaxController;
+    private RelativeEncoder m_sparkMaxEncoder;
+    private SparkMaxPIDController m_sparkMaxController;
     private AccessOrderHashSet<Function<CANSparkMax, Boolean>> m_mutatorChain;
     /**
      * Monitor the Spark Max to check for reset. This is used by the health monitor
@@ -65,7 +64,7 @@ public class SparkMax implements MotorController {
     // Cache gains so 'get' commands don't go out on CAN 
     // 4 gain slots in spark max
     private PIDGains m_gainsCached[] = new PIDGains[4];
-    private Constraints m_constraintsCached = new Constraints();
+    private Constraints m_constraintsCached = new Constraints(0.0, 0.0);
 
     private static final int VELOCITY_GAIN_SLOT = 0;
     private static final int SMART_MOTION_GAIN_SLOT = 1;
@@ -135,7 +134,7 @@ public class SparkMax implements MotorController {
 
         return new ControllerSupplier(
             (ref, ff) ->
-                m_sparkMaxController.setReference(ref, ControlType.kVelocity, VELOCITY_GAIN_SLOT, ff),
+                m_sparkMaxController.setReference(ref, CANSparkMax.ControlType.kVelocity, VELOCITY_GAIN_SLOT, ff),
             builder -> controllerInitSendable(builder, VELOCITY_GAIN_SLOT)
         );
 	}
@@ -176,7 +175,7 @@ public class SparkMax implements MotorController {
         
         return new ControllerSupplier(
             (ref, ff) -> 
-                m_sparkMaxController.setReference(ref, ControlType.kSmartMotion, SMART_MOTION_GAIN_SLOT, ff),
+                m_sparkMaxController.setReference(ref, CANSparkMax.ControlType.kSmartMotion, SMART_MOTION_GAIN_SLOT, ff),
             builder -> 
                 controllerInitSendable(builder, SMART_MOTION_GAIN_SLOT)
         );

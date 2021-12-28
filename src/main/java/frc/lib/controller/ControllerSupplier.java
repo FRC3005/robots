@@ -3,7 +3,7 @@ package frc.lib.controller;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.util.sendable.SendableBuilder;
 
 public class ControllerSupplier implements Controller {
     BiConsumer<Double, Double> m_setReference;

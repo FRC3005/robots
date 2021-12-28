@@ -6,8 +6,8 @@ package frc.swervetest;
 
 import frc.lib.controller.PIDGains;
 
-import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide

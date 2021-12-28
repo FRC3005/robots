@@ -2,8 +2,8 @@ package frc.lib.sim.wpiClasses;
 
 import java.util.Objects;
 
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 
 public class ForceAtPose2d {
   public Force2d force;

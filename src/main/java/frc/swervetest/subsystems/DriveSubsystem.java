@@ -8,22 +8,23 @@ import frc.lib.controller.Controller;
 import frc.lib.swerve.SwerveDrive;
 import frc.lib.swerve.SwerveModule;
 import frc.lib.vendor.motorcontroller.SparkMax;
-import com.revrobotics.CANEncoder;
+import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import frc.swervetest.Constants;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import frc.lib.util.Constraints;
 
 public class DriveSubsystem extends SwerveDrive {
 
     private static final Function<CANSparkMax, Boolean> DriveMotorInitializer = (CANSparkMax sparkMax) -> {
         sparkMax.restoreFactoryDefaults();
-        CANEncoder enc = sparkMax.getEncoder();
+        RelativeEncoder enc = sparkMax.getEncoder();
     
         // Convert 'rotations' to 'meters'
         enc.setPositionConversionFactor(Constants.Drivetrain.kDriveEncoderPositionFactor);
@@ -43,7 +44,7 @@ public class DriveSubsystem extends SwerveDrive {
 
     private static final Function<CANSparkMax, Boolean> TurningMotorInitializer = (CANSparkMax sparkMax) -> {
         sparkMax.restoreFactoryDefaults();
-        CANEncoder enc = sparkMax.getEncoder();
+        RelativeEncoder enc = sparkMax.getEncoder();
     
         // Convert 'rotations' to 'meters'
         enc.setPositionConversionFactor(Constants.Drivetrain.kTurningEncoderPositionFactor);

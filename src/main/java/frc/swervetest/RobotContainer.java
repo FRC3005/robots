@@ -42,7 +42,7 @@ public class RobotContainer {
     m_simSparkMax.setDefaultCommand(
       new RunCommand(
         () -> m_simSparkMax.setOutput(
-          m_driverController.getY(GenericHID.Hand.kLeft)), m_simSparkMax));
+          m_driverController.getLeftY()), m_simSparkMax));
 
     // Configure default commands
     // Set the default drive command to split-stick arcade drive
@@ -52,9 +52,9 @@ public class RobotContainer {
         new RunCommand(
             () ->
                 m_robotDrive.drive(
-                    m_driverController.getY(GenericHID.Hand.kLeft),
-                    m_driverController.getX(GenericHID.Hand.kRight),
-                    m_driverController.getX(GenericHID.Hand.kLeft),
+                    m_driverController.getLeftY(),
+                    m_driverController.getRightX(),
+                    m_driverController.getLeftX(),
                     false), m_robotDrive));
   }
 

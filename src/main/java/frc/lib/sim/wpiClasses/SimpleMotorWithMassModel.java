@@ -1,7 +1,7 @@
 package frc.lib.sim.wpiClasses;
 
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.DCMotor;
 
 class SimpleMotorWithMassModel {
     

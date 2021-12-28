@@ -4,22 +4,19 @@
 
 package frc.swervetest.subsystems;
 
-import com.revrobotics.CANPIDController;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import com.revrobotics.CANSparkMaxSim;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.smartdashboard.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SimSparkMax extends SubsystemBase {
   private final CANSparkMax m_motor = new CANSparkMax(35, MotorType.kBrushless);
-  private final CANPIDController m_pid;
+  private final SparkMaxPIDController m_pid;
   private final CANSparkMaxSim m_simMotor;
   private FlywheelSim m_dynamics;
   private double m_simVelocity = 0.0;
@@ -39,8 +36,8 @@ public class SimSparkMax extends SubsystemBase {
   public void setOutput(double value) {
     //m_motor.set(value * 5600);
     //m_simMotor.setSetpoint(value * 5600);
-    m_pid.setReference(3000, ControlType.kVelocity);
-    m_simMotor.setControlType(ControlType.kVelocity);
+    m_pid.setReference(3000, CANSparkMax.ControlType.kVelocity);
+    m_simMotor.setControlType(CANSparkMax.ControlType.kVelocity);
     m_simMotor.setSetpoint(3000);
   }
 

@@ -1,10 +1,9 @@
 package com.revrobotics;
 
-import com.revrobotics.CANDigitalInput;
-import com.revrobotics.CANPIDController;
+import com.revrobotics.SparkMaxLimitSwitch;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANDigitalInput.LimitSwitch;
-import com.revrobotics.CANPIDController.ArbFFUnits;
+import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 
 import com.revrobotics.jni.CANSparkMaxJNI;
@@ -14,9 +13,10 @@ import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.SimEnum;
 import edu.wpi.first.hal.SimInt;
 import edu.wpi.first.hal.SimValue;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
-import edu.wpi.first.wpilibj.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.util.Units;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 
 import org.tinylog.Logger;
 
@@ -28,7 +28,7 @@ public class CANSparkMaxSim {
     private final SimDouble m_motorCurrent;
     private final CANSparkMax m_sparkMax;
     private final DCMotor m_dcMotor;
-    private ControlType m_controlMode = ControlType.kDutyCycle;
+    private CANSparkMax.ControlType m_controlMode = CANSparkMax.ControlType.kDutyCycle;
     private double m_setpoint = 0.0;
     private double m_arbFF = 0.0;
     private int m_pidSlot = 0;
@@ -121,7 +121,7 @@ public class CANSparkMaxSim {
      * 
      * @param controlType
      */
-    public void setControlType(ControlType controlType) {
+    public void setControlType(CANSparkMax.ControlType controlType) {
         m_controlMode = controlType;
     }
 
@@ -185,7 +185,7 @@ public class CANSparkMaxSim {
     // Modified from https://docs.revrobotics.com/sparkmax/operating-modes/closed-loop-control
     private double runPID(double setpoint, double pv, int slot, double dt) {
         // TODO: factor in dt
-        CANPIDController controller = m_sparkMax.getPIDController();
+        SparkMaxPIDController controller = m_sparkMax.getPIDController();
         double error = setpoint - pv;
 
         double p = error * controller.getP(slot);
@@ -212,18 +212,18 @@ public class CANSparkMaxSim {
     private boolean runLimitLogic(boolean forward) {
         if (forward) {
             if ((m_sparkMax.getSoftLimit(SoftLimitDirection.kReverse) > m_position.get()) &&
-                    CANSparkMaxJNI.c_SparkMax_IsSoftLimitEnabled(m_sparkMax.m_sparkMax, SoftLimitDirection.kForward.value)) {
+                    CANSparkMaxJNI.c_SparkMax_IsSoftLimitEnabled(m_sparkMax.sparkMaxHandle, SoftLimitDirection.kForward.value)) {
                 return true;
             }
 
-            return (CANSparkMaxJNI.c_SparkMax_IsLimitEnabled(m_sparkMax.m_sparkMax, LimitSwitch.kForward.value) && m_forwardLimit);
+            return (CANSparkMaxJNI.c_SparkMax_IsLimitEnabled(m_sparkMax.sparkMaxHandle, SparkMaxLimitSwitch.Direction.kForward.value) && m_forwardLimit);
         } else {
             if ((m_sparkMax.getSoftLimit(SoftLimitDirection.kReverse) > m_position.get()) &&
-                    CANSparkMaxJNI.c_SparkMax_IsSoftLimitEnabled(m_sparkMax.m_sparkMax, SoftLimitDirection.kReverse.value)) {
+                    CANSparkMaxJNI.c_SparkMax_IsSoftLimitEnabled(m_sparkMax.sparkMaxHandle, SoftLimitDirection.kReverse.value)) {
                 return true;
             }
 
-            return (CANSparkMaxJNI.c_SparkMax_IsLimitEnabled(m_sparkMax.m_sparkMax, LimitSwitch.kReverse.value) && m_reverseLimit);
+            return (CANSparkMaxJNI.c_SparkMax_IsLimitEnabled(m_sparkMax.sparkMaxHandle, SparkMaxLimitSwitch.Direction.kReverse.value) && m_reverseLimit);
         }
     }
 
@@ -249,8 +249,8 @@ public class CANSparkMaxSim {
         m_velocity.set(velocity);
 
         // TODO: This doesn't work with the 2021 SPARK MAX API
-        double positionFactor = CANSparkMaxJNI.c_SparkMax_GetPositionConversionFactor(m_sparkMax.m_sparkMax);
-        double velocityFactor = CANSparkMaxJNI.c_SparkMax_GetVelocityConversionFactor(m_sparkMax.m_sparkMax);
+        double positionFactor = CANSparkMaxJNI.c_SparkMax_GetPositionConversionFactor(m_sparkMax.sparkMaxHandle);
+        double velocityFactor = CANSparkMaxJNI.c_SparkMax_GetVelocityConversionFactor(m_sparkMax.sparkMaxHandle);
 
         // These come back as 0, maybe an API issue?
         if (positionFactor == 0.0) {
@@ -262,7 +262,7 @@ public class CANSparkMaxSim {
 
         double velocityRPM = velocity / velocityFactor;
         m_position.set(
-            m_position.get() + (velocityRPM * dt) / positionFactor
+            m_position.get() + ((velocityRPM / 60) * dt) / positionFactor
         );
         m_busVoltage.set(vbus);
 
@@ -328,7 +328,13 @@ public class CANSparkMaxSim {
         // TODO: Faults
 
         // And finally, set remaining states
-        m_appliedOutput.set(appliedOutput);
+        
+        if (DriverStation.isEnabled()) {
+            m_appliedOutput.set(appliedOutput);
+        } else {
+            m_appliedOutput.set(0.0);
+        }
+
         m_motorCurrent.set(m_dcMotor.getCurrent(
             velocityRPM, 
             appliedOutput * vbus
