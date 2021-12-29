@@ -1,22 +1,15 @@
 package com.revrobotics;
 
-import com.revrobotics.SparkMaxLimitSwitch;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 
 import com.revrobotics.jni.CANSparkMaxJNI;
 
-import edu.wpi.first.hal.HALValue;
 import edu.wpi.first.hal.SimDouble;
-import edu.wpi.first.hal.SimEnum;
-import edu.wpi.first.hal.SimInt;
-import edu.wpi.first.hal.SimValue;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
+import frc.lib.util.MovingAverageFilterSim;
+import frc.lib.util.NoiseGenerator;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 
 import org.tinylog.Logger;
 
@@ -35,6 +28,7 @@ public class CANSparkMaxSim {
     private int m_arbFFUnits = 0;
     private boolean m_forwardLimit = false;
     private boolean m_reverseLimit = false;
+    private final MovingAverageFilterSim m_velocityAverage = new MovingAverageFilterSim(8, 0.032);
 
     // PID State
     double m_iState = 0.0;
@@ -62,7 +56,6 @@ public class CANSparkMaxSim {
      * using the DCMotor constructor.
      */
     public CANSparkMaxSim(CANSparkMax sparkMax, DCMotor motor) {
-
         SimDeviceSim sparkMaxSim = new SimDeviceSim("SPARK MAX" + " [" + sparkMax.getDeviceId() + "]");
         m_appliedOutput = sparkMaxSim.getDouble("Applied Output");
         m_position = sparkMaxSim.getDouble("Position");
@@ -184,19 +177,18 @@ public class CANSparkMaxSim {
 
     // Modified from https://docs.revrobotics.com/sparkmax/operating-modes/closed-loop-control
     private double runPID(double setpoint, double pv, int slot, double dt) {
-        // TODO: factor in dt
         SparkMaxPIDController controller = m_sparkMax.getPIDController();
         double error = setpoint - pv;
 
         double p = error * controller.getP(slot);
 
         if(Math.abs(error) <= controller.getIZone(slot) || controller.getIZone(slot) == 0.0f) {
-            m_iState = m_iState + (error * controller.getI(slot));
+            m_iState = m_iState + (error * controller.getI(slot) * dt);
         } else {
             m_iState = 0;
         }
 
-        double d = (error - m_prev_err);
+        double d = (error - m_prev_err) / dt;
         m_prev_err = error;
         d *= controller.getD(slot);
 
@@ -238,15 +230,22 @@ public class CANSparkMaxSim {
      * 
      * @param velocity The externally calculated velocity in units after
      * conversion. For example, if the velocity factor is 1, use RPM. If the
-     * velocity factor is (1 / 60) use RPS.
+     * velocity factor is (1 / 60) use RPS. The internal simulation state will
+     * 'lag' behind this input due to the SPARK MAX internal filtering. Noise
+     * will also be added.
      *
      * @param vbus Bus voltage in volts
      *
      * @param dt Simulation time step in seconds
      */
     public void iterate(double velocity, double vbus, double dt) {
+        // Velocity input is the system simulated input.
+        double internalVelocity = NoiseGenerator.hallSensorVelocity(velocity);
+        m_velocityAverage.put(internalVelocity, dt);
+        internalVelocity = m_velocityAverage.get();
+
         // First set the states that are given
-        m_velocity.set(velocity);
+        m_velocity.set(internalVelocity);
 
         // TODO: This doesn't work with the 2021 SPARK MAX API
         double positionFactor = CANSparkMaxJNI.c_SparkMax_GetPositionConversionFactor(m_sparkMax.sparkMaxHandle);
@@ -276,7 +275,7 @@ public class CANSparkMaxSim {
 
             // Velocity
             case kVelocity:
-            appliedOutput = runPID(m_setpoint, velocity, m_pidSlot, dt);
+            appliedOutput = runPID(m_setpoint, internalVelocity, m_pidSlot, dt);
             break;
 
             // Voltage
@@ -288,6 +287,7 @@ public class CANSparkMaxSim {
             case kPosition:
             appliedOutput = runPID(m_setpoint, m_position.get(), m_pidSlot, dt);
             break;
+
             // Smart Motion
             case kSmartMotion:
             // TODO... This control mechansim is not documented

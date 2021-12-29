@@ -8,9 +8,13 @@ import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import org.ejml.simple.SimpleMatrix;
+
 import com.revrobotics.CANSparkMaxSim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -23,11 +27,13 @@ public class SimSparkMax extends SubsystemBase {
 
   /** Creates a new ExampleSubsystem. */
   public SimSparkMax() {
+    Matrix<N1, N1> noiseStdDev = new Matrix<>(new SimpleMatrix(1, 1));
+    noiseStdDev.set(0, 0, 0.1);
     m_simMotor = new CANSparkMaxSim(m_motor);
-    m_dynamics = new FlywheelSim(DCMotor.getNEO(1), 1, 0.001);
+    m_dynamics = new FlywheelSim(DCMotor.getNEO(1), 1, 0.001, noiseStdDev);
 
     m_pid = m_motor.getPIDController();
-    m_pid.setP(0.0015);
+    m_pid.setP(0.0005);
     m_pid.setOutputRange(-1.0, 1.0);
     m_motor.getEncoder().setPositionConversionFactor(2.0);
     m_motor.getEncoder().setVelocityConversionFactor(0.1);
